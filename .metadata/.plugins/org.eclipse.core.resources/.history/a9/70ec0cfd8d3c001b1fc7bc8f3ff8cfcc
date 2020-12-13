@@ -1,0 +1,13 @@
+package com.example.demovmware;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication(scanBasePackages={"com.example.demovmware, com.example.demovmware.service"})
+public class DemoVmwareApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(DemoVmwareApplication.class, args);
+	}
+
+}

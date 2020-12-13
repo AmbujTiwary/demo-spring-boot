@@ -1,0 +1,42 @@
+package com.example.demo.models;
+
+import java.sql.Date;
+import java.util.UUID;
+
+public class NumberGenerator {
+	private UUID id;
+	Status status;
+	
+	public NumberGenerator(Status status)
+	{
+		this.status = status;
+	}
+	
+	public UUID getId() {
+		return id;
+	}
+	public void setId(UUID id) {
+		this.id = id;
+	}
+	private String goal;
+	private String step;
+	
+	public String getGoal() {
+		return goal;
+	}
+	public void setGoal(String goal) {
+		this.goal = goal;
+	}
+	public String getStep() {
+		return step;
+	}
+	public void setStep(String step) {
+		this.step = step;
+	}
+	
+}
+
+
+enum Status {
+	SUCCESS, IN_PROGRESS, ERROR
+}

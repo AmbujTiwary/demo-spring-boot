@@ -1,0 +1,90 @@
+package com.example.demovmware.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.stereotype.Service;
+
+import com.example.demovmware.models.NumberGenerator;
+import com.example.demovmware.models.StatusList;
+
+@Service
+public class NumberGeneratorService {
+
+	Map<UUID, NumberGenerator> listGenerator = new HashMap<UUID, NumberGenerator>();
+	Map<UUID, List<Integer>> numList = new HashMap<>();
+	Map<UUID, List<List<Integer>>> bunchNumList = new HashMap<>();
+	
+	
+	public UUID numberGenerator(NumberGenerator gen, UUID id) {
+		
+		UUID uid = id;
+		gen.setId(uid);
+
+		int goal = Integer.valueOf(gen.getGoal());
+		int step = Integer.valueOf(gen.getStep());
+		listGenerator.put(uid, gen);
+
+		NumberGenerator num = new NumberGenerator();
+		num.setStatus(0);
+		Executors.newScheduledThreadPool(1).schedule(() -> getGeneratedNumber(goal, step, gen.getId()), 10,
+				TimeUnit.SECONDS);
+
+		listGenerator.put(gen.getId(), num);
+		return gen.getId();
+	}
+	
+	private CompletableFuture<List<Integer>> getGeneratedNumber(int goal, int step, UUID id) {
+		int i =goal;
+		List<Integer> list = new ArrayList<Integer>();
+		while(i >=  0)
+		{
+			try {
+				System.out.println("sleeping for 1 sec");
+				TimeUnit.SECONDS.sleep(5);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			list.add(i);
+			i -= step;
+		}
+		NumberGenerator num = new NumberGenerator();
+		System.out.println("setting status to 1");
+		num.setStatus(1);
+		
+		listGenerator.put(id, num);
+		System.out.println("adding to list");
+		numList.put(id, list);
+		return CompletableFuture.completedFuture(list);
+	}
+	
+	public String fetchTaskStatus (UUID id) {
+		if(listGenerator.containsKey(id)) {
+			  NumberGenerator obj = listGenerator.get(id);
+			  StatusList s = obj.getStatus();
+			  return s.toString();
+	        
+	    }
+		return null;
+	}
+	
+	public String listOfNumbers(UUID id) {
+		
+		 if(listGenerator.containsKey(id)) {
+			  NumberGenerator obj = listGenerator.get(id);
+			  StatusList s = obj.getStatus();
+			  if(s == StatusList.IN_PROGRESS)
+				  return "invalidStatus";
+			  
+			  List<Integer> list = numList.get(id);			  
+			  return list.toString();      
+	    }
+		return null;
+	}
+}

@@ -1,0 +1,112 @@
+package com.example.demovmware.controllers;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demovmware.models.NumberGenerator;
+import com.example.demovmware.models.StatusList;
+
+@RestController
+@RequestMapping("api/")
+public class NumGeneratorController {
+
+	Map<UUID, NumberGenerator> listGenerator = new HashMap<UUID, NumberGenerator>();
+	Map<UUID, List<Integer>> numList = new HashMap<>();
+	
+	
+	@Async
+	@PostMapping(path= "generate", consumes = "application/json", produces = "application/json")
+	@ResponseStatus(HttpStatus.OK) 
+	public UUID generateNumber(@RequestBody NumberGenerator gen) {
+		System.out.println("goal " + gen.getGoal() + "pwd " + gen.getStep());
+		
+		
+		UUID uid =java.util.UUID.randomUUID();
+		gen.setId(uid);
+		
+		int goal = Integer.valueOf(gen.getGoal());
+		int step = Integer.valueOf(gen.getStep());
+		
+		listGenerator.put(uid, gen);
+	//	getGeneratedNumber(goal, step);
+		NumberGenerator num = new NumberGenerator();
+		num.setStatus(0);
+		Executors.newScheduledThreadPool(1).schedule(
+       () -> getGeneratedNumber(goal, step, gen.getId()),
+		        10, TimeUnit.SECONDS
+		    );
+		
+		listGenerator.put(gen.getId(), num);
+		return gen.getId();
+		//return CompletableFuture.completedFuture(gen.getId());
+	}
+	
+	
+	private CompletableFuture<List<Integer>> getGeneratedNumber(int goal, int step, UUID id) {
+		int i =0;
+		List<Integer> list = new ArrayList<Integer>();
+		while(i < goal)
+		{
+			try {
+				System.out.println("sleeping for 1 sec");
+				TimeUnit.SECONDS.sleep(5);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			list.add(i);
+			i += step;
+		}
+		NumberGenerator num = new NumberGenerator();
+		System.out.println("setting status to 1");
+		num.setStatus(1);
+		
+		listGenerator.put(id, num);
+		System.out.println("adding to list");
+		numList.put(id, list);
+		return CompletableFuture.completedFuture(list);
+	}
+	
+	   @GetMapping(value="tasks/{id}/status", produces = MediaType.TEXT_PLAIN_VALUE)
+	    public String getTaskStatus (@PathVariable("id") UUID id) {
+		  if(listGenerator.containsKey(id)) {
+			  NumberGenerator obj = listGenerator.get(id);
+			  StatusList s = obj.getStatus();
+			  return s.toString();
+	        
+	    }
+		return null;
+	}
+	
+	   
+	   @GetMapping(value="tasks/{id}", produces = MediaType.TEXT_PLAIN_VALUE)
+	   
+	    public String getNumList (@PathVariable("id") UUID id, @RequestParam("action") String getList) {
+		  if(listGenerator.containsKey(id)) {
+			  NumberGenerator obj = listGenerator.get(id);
+			  StatusList s = obj.getStatus();
+			  return s.toString();
+	        
+	    }
+		return null;
+	}
+
+}

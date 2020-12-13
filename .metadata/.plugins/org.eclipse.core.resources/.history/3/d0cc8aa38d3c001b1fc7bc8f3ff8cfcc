@@ -1,0 +1,5 @@
+package com.example.demovmware.service;
+
+public class NumberGeneratorService {
+
+}

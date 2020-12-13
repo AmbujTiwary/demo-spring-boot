@@ -1,0 +1,15 @@
+package com.example.demo;
+
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
+
+@Configuration
+@EnableAsync
+public class AsyncConfiguration {
+
+	private static final Logger logger = LoggerFactory.getLogger(AsyncConfiguration.class);
+	
+	@Bean(name = "taskExecuter")
+}

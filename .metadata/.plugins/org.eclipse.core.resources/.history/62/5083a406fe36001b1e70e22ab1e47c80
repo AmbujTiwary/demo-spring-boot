@@ -1,0 +1,30 @@
+package com.example.demo.models;
+
+import java.util.UUID;
+
+public class Sequence {
+
+	private int goal;
+	private int step;
+	private UUID taskId;
+	
+	public UUID getTaskId() {
+		return taskId;
+	}
+	public void setTaskId(UUID taskId) {
+		this.taskId = taskId;
+	}
+	public int getGoal() {
+		return goal;
+	}
+	public void setGoal(int goal) {
+		this.goal = goal;
+	}
+	public int getStep() {
+		return step;
+	}
+	public void setStep(int step) {
+		this.step = step;
+	}
+
+}

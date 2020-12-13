@@ -1,0 +1,5 @@
+package com.example.demovmware.controllers;
+
+public class NumGeneratorController {
+
+}

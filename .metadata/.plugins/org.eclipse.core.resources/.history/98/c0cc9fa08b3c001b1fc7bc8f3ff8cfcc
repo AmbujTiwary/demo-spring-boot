@@ -1,0 +1,41 @@
+package com.example.demovmware.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+import com.example.demovmware.models.NumberGenerator;
+
+public class NumberGeneratorService {
+
+	Map<UUID, NumberGenerator> listGenerator = new HashMap<UUID, NumberGenerator>();
+	Map<UUID, List<Integer>> numList = new HashMap<>();
+	
+	private CompletableFuture<List<Integer>> getGeneratedNumber(int goal, int step, UUID id) {
+		int i =goal;
+		List<Integer> list = new ArrayList<Integer>();
+		while(i >=  0)
+		{
+			try {
+				System.out.println("sleeping for 1 sec");
+				TimeUnit.SECONDS.sleep(5);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			list.add(i);
+			i -= step;
+		}
+		NumberGenerator num = new NumberGenerator();
+		System.out.println("setting status to 1");
+		num.setStatus(1);
+		
+		listGenerator.put(id, num);
+		System.out.println("adding to list");
+		numList.put(id, list);
+		return CompletableFuture.completedFuture(list);
+	}
+}

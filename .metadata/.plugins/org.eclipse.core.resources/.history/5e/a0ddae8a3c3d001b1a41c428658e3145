@@ -1,0 +1,121 @@
+package com.example.demovmware.controllers;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demovmware.models.NumberGenerator;
+import com.example.demovmware.models.StatusList;
+import com.example.demovmware.service.NumberGeneratorService;
+
+@RestController
+@RequestMapping("api/")
+public class NumGeneratorController {
+
+	@Autowired
+	private NumberGeneratorService numberGeneratorService;
+	
+	//Single object request
+	@Async
+	@PostMapping(path= "generate", consumes = "application/json", produces = "application/json")
+	@ResponseStatus(HttpStatus.OK) 
+	public ResponseEntity<Object> generateNumber(@RequestBody NumberGenerator gen) {
+		
+		UUID uid = java.util.UUID.randomUUID();
+		numberGeneratorService.numberGenerator(gen, uid);
+		JSONObject entity = new JSONObject();
+		entity.put("task", uid);
+	    return new ResponseEntity<>(entity.toMap(), HttpStatus.OK);
+	}
+
+	//Array of objects -> request
+	@Async
+	@PostMapping(path= "bulGenerate", consumes = "application/json", produces = "application/json")
+	@ResponseStatus(HttpStatus.OK) 
+	public ResponseEntity<Object> generateNumberBunch(@RequestBody List<NumberGenerator> genList) {
+
+		UUID uid = java.util.UUID.randomUUID();
+		int single = 1;
+		for(NumberGenerator gen : genList) {
+			numberGeneratorService.numberGenerator(gen, uid);
+		}
+		
+		UUID id = genList.get(0).getId();
+		JSONObject entity = new JSONObject();
+		entity.put("task", id);
+	    return new ResponseEntity<>(entity.toMap(), HttpStatus.OK);
+	}
+	
+	
+	@GetMapping(value="tasks/{id}/status", consumes = "application/json", produces = "application/json")
+	public ResponseEntity<Object> getTaskStatus (@PathVariable("id") UUID id) {
+
+		String taskStatus = numberGeneratorService.fetchTaskStatus(id);
+
+		JSONObject entity = new JSONObject();	
+		if(taskStatus == null) {
+			entity.put("result", "uid does not exist");
+			return new ResponseEntity<>(entity.toMap(), HttpStatus.OK);
+		}
+		
+		entity.put("result", taskStatus);
+	    return new ResponseEntity<>(entity.toMap(), HttpStatus.OK);
+	}
+
+
+	@GetMapping(value="tasks/{id}", consumes = "application/json", produces = "application/json")
+
+	public ResponseEntity<Object> getNumList (@PathVariable("id") UUID id, @RequestParam("action") String getList) {
+
+		String data = null;
+		if(getList != null)
+		{
+			data =  numberGeneratorService.listOfNumbers(id);
+		}
+		
+		JSONObject entity = new JSONObject();
+		
+		
+		if(data == null) {
+			entity.put("result", "uid does not exist");
+			return new ResponseEntity<>(entity.toMap(), HttpStatus.OK);
+		}
+		if(data.equals("invalidStatus")) {
+			entity.put("result", "Invalid status InProgress/ Error");
+			return new ResponseEntity<>(entity.toMap(), HttpStatus.OK);
+		}
+		entity.put("result", data);
+	    return new ResponseEntity<>(entity.toMap(), HttpStatus.OK);
+	}
+
+	
+	//Get info
+	@GetMapping(value="/", consumes = "application/json", produces = "application/json")
+	public ResponseEntity<Object> getInfo () {
+		JSONObject entity = new JSONObject();
+		entity.put("result", "connected with server");
+		return new ResponseEntity<>(entity.toMap(), HttpStatus.OK);
+	}
+}

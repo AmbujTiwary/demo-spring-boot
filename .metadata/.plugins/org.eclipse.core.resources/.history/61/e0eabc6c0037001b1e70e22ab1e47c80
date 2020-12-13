@@ -1,0 +1,50 @@
+package com.example.demo.controllers;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.models.Sequence;
+
+@RestController
+@RequestMapping("api/generate")
+
+public class NumberGenerator {
+
+	@PostMapping(path= "valid", consumes = "application/json", produces = "application/json")
+	@ResponseStatus(HttpStatus.OK) 
+	public UUID numberGenerator(@RequestBody Sequence sequence)
+	{
+
+		
+		List<Integer> list = new LinkedList<Integer>();
+		
+		generateSequence(sequence, list);
+		
+		return UUID.randomUUID();
+	}
+	
+	void generateSequence(Sequence sequence, List<Integer> list)
+	{
+		int goal = sequence.getGoal();
+		int step = sequence.getStep();
+		int status = sequence.getStatus();
+		sequence.setStatus(1);
+		
+		Random rand = new Random();
+		int w = rand.nextInt(100);
+		TimeUnit.SECONDS.sleep(w);
+		
+	}
+	
+	
+}

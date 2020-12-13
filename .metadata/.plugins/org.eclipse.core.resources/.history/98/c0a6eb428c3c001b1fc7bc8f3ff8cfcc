@@ -1,0 +1,71 @@
+package com.example.demovmware.controllers;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demovmware.models.NumberGenerator;
+import com.example.demovmware.models.StatusList;
+import com.example.demovmware.service.NumberGeneratorService;
+
+@RestController
+@RequestMapping("api/")
+public class NumGeneratorController {
+
+	@Autowired
+	private NumberGeneratorService numberGeneratorService;
+	
+	@Async
+	@PostMapping(path= "generate", consumes = "application/json", produces = "application/json")
+	@ResponseStatus(HttpStatus.OK) 
+	public UUID generateNumber(@RequestBody NumberGenerator gen) {
+		
+		numberGeneratorService.numberGenerator(gen);
+		return gen.getId();
+	}
+	
+	
+	   @GetMapping(value="tasks/{id}/status", produces = MediaType.TEXT_PLAIN_VALUE)
+	    public String getTaskStatus (@PathVariable("id") UUID id) {
+		  if(listGenerator.containsKey(id)) {
+			  NumberGenerator obj = listGenerator.get(id);
+			  StatusList s = obj.getStatus();
+			  return s.toString();
+	        
+	    }
+		return null;
+	}
+	
+	   
+	   @GetMapping(value="tasks/{id}", produces = MediaType.TEXT_PLAIN_VALUE)
+	   
+	    public String getNumList (@PathVariable("id") UUID id, @RequestParam("action") String getList) {
+		  if(listGenerator.containsKey(id)) {
+			  List<Integer> list = numList.get(id);
+			  
+			  return list.toString();
+	        
+	    }
+		return null;
+	}
+
+}

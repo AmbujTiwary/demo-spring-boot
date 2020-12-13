@@ -1,0 +1,9 @@
+package com.example.demo.models;
+
+import java.sql.Date;
+
+public class User {
+	private String name;
+	private String password;
+	private Date creattionTime;
+}

@@ -1,0 +1,7 @@
+package com.example.demo.controllers;
+
+@Configuration
+@EnableAsync
+public class AsyncConfiguration {
+
+}
